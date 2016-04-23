@@ -1,25 +1,65 @@
 #!/usr/bin/python
 
-"""
-A simple script to help collate multiple join srtm files together.
-
-Uses mayavi's examples as a basis for creating surf maps.
-"""
-
 import Mapper as map
+import sys
+import getopt
 
-srtm_mapper = map.Mapper()
-srtm_mapper.vmin = 0
-srtm_mapper.vmax = 3800
-srtm_mapper.figure_offset_scale = 600.5
+def main(argv):
+    version = "1.0"
+    help_message = "usage: srtm_mapper.py" + "\n\n" + "srtm_mapper version " + version + \
+                   " - " + "By Nathan Tucker." + "\n"
 
-srtm_mapper.create_figure()
+    input_file = ""
+    vmin = None
+    vmax = None
+    offset_scalar = 1.0
+    use_absolute_coordinates = False
 
-#srtm_mapper.create_surf_map('/Users/thecowgod/Downloads/J13.zip', 'J13/N39W105.hgt')
-#srtm_mapper.create_surf_map('/Users/thecowgod/Downloads/J13.zip', 'J13/N39W106.hgt')
-srtm_mapper.create_surf_map('/Users/thecowgod/Downloads/K13.zip', 'K13/N40W105.hgt')
-srtm_mapper.create_surf_map('/Users/thecowgod/Downloads/K13.zip', 'K13/N40W106.hgt', map_offset_y = -1.0)
-#srtm_mapper.create_surf_map('/Users/thecowgod/Downloads/K13.zip', 'K13/N41W105.hgt')
-#srtm_mapper.create_surf_map('/Users/thecowgod/Downloads/K13.zip', 'K13/N41W106.hgt')
+    try:
+        opts, args = getopt.getopt(argv, "hi:n:x:o:a", ["input=", "vmin=", "vmax=", "offset=", "absolute"])
+    except getopt.GetoptError:
+        print(help_message)
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            print(help_message)
+            sys.exit()
+        elif opt in ("-i", "--input"):
+            input_file = arg
+        elif opt in ("-n", "--vmin"):
+            vmin = int(arg)
+        elif opt in ("-x", "--vmax"):
+            vmax = int(arg)
+        elif opt in ("-o", "--offset"):
+            offset_scalar = float(arg)
+        elif opt in ("-a", "--absolute"):
+            use_absolute_coordinates = True
 
-srtm_mapper.show()
+    if not input_file:
+        print(help_message)
+        sys.exit(2)
+
+    srtm_mapper = map.Mapper()
+
+    srtm_mapper.vmin = vmin
+    srtm_mapper.vmax = vmax
+    srtm_mapper.use_figure_offset_scale = not use_absolute_coordinates
+    srtm_mapper.figure_offset_scale = offset_scalar
+
+    srtm_mapper.create_figure()
+
+    with open(input_file) as srtm_file:
+        for line in srtm_file:
+            line_parsed = line.strip().split(',')
+
+            offset_x = float(line_parsed[2])
+            offset_y = float(line_parsed[3])
+            offset_z = float(line_parsed[4])
+
+            srtm_mapper.create_surf_map(line_parsed[0], line_parsed[1],
+                offset_x, offset_y, offset_z)
+
+    srtm_mapper.show()
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

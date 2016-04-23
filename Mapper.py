@@ -21,7 +21,7 @@ class Mapper:
             self.engine.start()
 
     def create_figure(self):
-        mlab.figure(size=(400, 320), bgcolor=(0.16, 0.28, 0.46))
+        mlab.figure(size=(400, 320))
 
     def show(self):
         mlab.show()
@@ -37,8 +37,8 @@ class Mapper:
 
                 return data
 
-    def create_surf_map(self, zip_path, hgt_path, map_offset_x = 1.0,
-                        map_offset_y = 1.0, map_offset_z = 1.0):
+    def create_surf_map(self, zip_path, hgt_path, map_offset_x = 0.0,
+                        map_offset_y = 0.0, map_offset_z = 0.0):
 
                 data = self.parse_srtm_data(zip_path, hgt_path)
 
