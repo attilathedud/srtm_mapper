@@ -35,6 +35,20 @@ class Mapper:
 
                 self._data[self._data == -32768] = self._data[self._data > 0].min()
 
+    def adjust_offsets(self, map_offset_x = 0.0,
+                        map_offset_y = 0.0, map_offset_z = 0.0):
+
+            self.current_figure += 1
+
+            figure_array_source = self.engine.scenes[0].children[self.current_figure]
+
+            if self.use_figure_offset_scale:
+                figure_array_source.origin = np.array([self.figure_offset_scale * map_offset_x,
+                                                        self.figure_offset_scale * map_offset_y,
+                                                        self.figure_offset_scale * map_offset_z])
+            else:
+                figure_array_source.origin = np.array([map_offset_x, map_offset_y, map_offset_z])
+
     def create_surf_map(self, zip_path, hgt_path, map_offset_x = 0.0,
                         map_offset_y = 0.0, map_offset_z = 0.0):
 
@@ -43,16 +57,26 @@ class Mapper:
                 mlab.surf(self._data, name=hgt_path, colormap='gist_earth', warp_scale=0.2,
                             vmin=self.vmin, vmax=self.vmax)
 
-                self.current_figure += 1
+                self.adjust_offsets(map_offset_x, map_offset_y, map_offset_z)
 
-                figure_array_source = self.engine.scenes[0].children[self.current_figure]
+                del self._data
 
-                if self.use_figure_offset_scale:
-                    figure_array_source.origin = np.array([self.figure_offset_scale * map_offset_x,
-                                                            self.figure_offset_scale * map_offset_y,
-                                                            self.figure_offset_scale * map_offset_z])
-                else:
-                    figure_array_source.origin = np.array([map_offset_x, map_offset_y, map_offset_z])
+    def create_decimated_map(self, zip_path, hgt_path, number_of_triangles = 5000, compute_normals = True,
+                map_offset_x = 0.0, map_offset_y = 0.0, map_offset_z = 0.0):
+
+                self.parse_srtm_data(zip_path, hgt_path)
+
+                _pipelined_data = mlab.pipeline.array2d_source(self._data)
+
+                terrain = mlab.pipeline.greedy_terrain_decimation(_pipelined_data)
+                terrain.filter.error_measure = 'number_of_triangles'
+                terrain.filter.number_of_triangles = number_of_triangles
+                terrain.filter.compute_normals = compute_normals
+
+                surf = mlab.pipeline.surface(terrain, colormap='gist_earth',
+                                                      vmin=self.vmin, vmax=self.vmax)
+
+                self.adjust_offsets(map_offset_x, map_offset_y, map_offset_z)
 
                 del self._data
 
