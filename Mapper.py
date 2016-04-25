@@ -59,7 +59,9 @@ class Mapper:
     def calculate_min_max(self, zip_path, hgt_path):
                 self.parse_srtm_data(zip_path, hgt_path)
 
-                print ("Min of set:" + str(np.amin(self._data)))
-                print ("Max of set:" + str(np.amax(self._data)))
+                min = np.amin(self._data)
+                max = np.amax(self._data)
 
                 del self._data
+
+                return (min, max)

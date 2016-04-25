@@ -14,9 +14,10 @@ def main(argv):
     vmax = None
     offset_scalar = 1.0
     use_absolute_coordinates = False
+    calculate_min_max_requested = False
 
     try:
-        opts, args = getopt.getopt(argv, "hi:n:x:o:a", ["input=", "vmin=", "vmax=", "offset=", "absolute"])
+        opts, args = getopt.getopt(argv, "hi:n:x:o:ac", ["input=", "vmin=", "vmax=", "offset=", "absolute", "calculate"])
     except getopt.GetoptError:
         print(help_message)
         sys.exit(2)
@@ -34,6 +35,9 @@ def main(argv):
             offset_scalar = float(arg)
         elif opt in ("-a", "--absolute"):
             use_absolute_coordinates = True
+        elif opt in ("-c", "--calculate"):
+            calculate_min_max_requested = True
+
 
     if not input_file:
         print(help_message)
@@ -46,7 +50,10 @@ def main(argv):
     srtm_mapper.use_figure_offset_scale = not use_absolute_coordinates
     srtm_mapper.figure_offset_scale = offset_scalar
 
-    srtm_mapper.create_figure()
+    if not calculate_min_max_requested:
+        srtm_mapper.create_figure()
+    else:
+        print("Min\tMax")
 
     with open(input_file) as srtm_file:
         for line in srtm_file:
@@ -56,10 +63,15 @@ def main(argv):
             offset_y = float(line_parsed[3])
             offset_z = float(line_parsed[4])
 
-            srtm_mapper.create_surf_map(line_parsed[0], line_parsed[1],
-                offset_x, offset_y, offset_z)
+            if not calculate_min_max_requested:
+                srtm_mapper.create_surf_map(line_parsed[0], line_parsed[1],
+                    offset_x, offset_y, offset_z)
+            else:
+                (min, max) = srtm_mapper.calculate_min_max(line_parsed[0], line_parsed[1])
+                print(str(min) + "\t" + str(max))
 
-    srtm_mapper.show()
+    if not calculate_min_max_requested:
+        srtm_mapper.show()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
