@@ -6,8 +6,19 @@ import getopt
 
 def main(argv):
     version = "1.0"
-    help_message = "usage: srtm_mapper.py" + "\n\n" + "srtm_mapper version " + version + \
-                   " - " + "By Nathan Tucker." + "\n"
+    help_message = "usage: srtm_mapper.py -i <input file> -o <offset scalar>" + "\n\n" + "srtm_mapper version " + version + \
+                   " - " + "Collates together separate SRTM files into a shared image for mapping. By Nathan Tucker." + "\n\n" + \
+                   "-i, --input\tPath to the files to parse. Format for the files should be: <path_to_zip>,<path_in_zip_of_hgt_file>,<offset_x>,<offset_y>,<offset_z>" + \
+                   ". Items are comma-separated and each newline represents a new file. Example: ./K13.zip,K13/N40W105.hgt,0,1,0" + "\n" + \
+                   "-n, --vmin\tValue to use as the minimum elevation for the earth colormap." + "\n" + \
+                   "-x, --vmax\tValue to use as the maximum elevation for the earth colormap." + "\n" + \
+                   "-o, --offset\tOffset scalar to use for arranging tiles. Generally tile_size * 2. For example, ./K13.zip,K13/N40W105.hgt,0,1,0 with --offset of 1200 would place the N40W105.hgt at x:0, y:1200, z:0." + "\n" + \
+                   "-a, --absolute\tUse absolute values instead of offsets. Use if you have odd shaped tiles or tiles from different sources. With this option, offsets in the input file need to be absolute values instead of scalars." + "\n" + \
+                   "-c, --calculate\tCalculate and display the min and max of provided sets so you can easily specify vmin and vmax values." + "\n\n" + \
+                   "example: srtm_mapper.py -i srtms_small_test --vmin 0 --vmax 3800 --offset 1200" + "\n\n" + \
+                   "srtms_small_test:\n" + "./K13.zip,K13/N40W105.hgt,0,0,0" + "\n" + \
+                   "./K13.zip,K13/N40W106.hgt,0,-1,0\n"
+
 
     input_file = ""
     vmin = None
