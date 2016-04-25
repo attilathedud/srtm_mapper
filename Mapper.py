@@ -27,22 +27,20 @@ class Mapper:
         mlab.show()
 
     def parse_srtm_data(self, zip_path, hgt_path):
-                data = np.fromstring(zipfile.ZipFile(zip_path).read(hgt_path), '>i2')
+                self._data = np.fromstring(zipfile.ZipFile(zip_path).read(hgt_path), '>i2')
 
-                data_sqrt_for_shaping = math.sqrt(data.shape[0])
-                data.shape = (data_sqrt_for_shaping, data_sqrt_for_shaping)
-                data = data.astype(np.float32)
+                data_sqrt_for_shaping = math.sqrt(self._data.shape[0])
+                self._data.shape = (data_sqrt_for_shaping, data_sqrt_for_shaping)
+                self._data = self._data.astype(np.float32)
 
-                data[data == -32768] = data[data > 0].min()
-
-                return data
+                self._data[self._data == -32768] = self._data[self._data > 0].min()
 
     def create_surf_map(self, zip_path, hgt_path, map_offset_x = 0.0,
                         map_offset_y = 0.0, map_offset_z = 0.0):
 
-                data = self.parse_srtm_data(zip_path, hgt_path)
+                self.parse_srtm_data(zip_path, hgt_path)
 
-                mlab.surf(data, name=hgt_path, colormap='gist_earth', warp_scale=0.2,
+                mlab.surf(self._data, name=hgt_path, colormap='gist_earth', warp_scale=0.2,
                             vmin=self.vmin, vmax=self.vmax)
 
                 self.current_figure += 1
@@ -56,12 +54,12 @@ class Mapper:
                 else:
                     figure_array_source.origin = np.array([map_offset_x, map_offset_y, map_offset_z])
 
-                del data
+                del self._data
 
     def calculate_min_max(self, zip_path, hgt_path):
-                data = self.parse_srtm_data(zip_path, hgt_path)
+                self.parse_srtm_data(zip_path, hgt_path)
 
-                print ("Min of set:" + str(np.amin(data)))
-                print ("Max of set:" + str(np.amax(data)))
+                print ("Min of set:" + str(np.amin(self._data)))
+                print ("Max of set:" + str(np.amax(self._data)))
 
-                del data
+                del self._data
