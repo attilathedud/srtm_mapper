@@ -7,6 +7,9 @@ N39W105 - N41W106.hgt with a direct surface map:
 The same terrain decimated and rendered with only 300 triangles:
 ![decimated render](http://i.imgur.com/M9ox7w4.png)
 
+The same terrain from a traditional topographical representation:
+![topographical render](http://i.imgur.com/LtMc4b1.jpg)
+
 Min/Max calculations over the same set:
 ```
 python srtm_mapper.py -i tests/srtms_full_test --vmin 0 --vmax 3800 --offset 1200 -c
