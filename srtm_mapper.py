@@ -77,7 +77,13 @@ def main(argv):
     else:
         print("Min\tMax")
 
-    with open(input_file) as srtm_file:
+    try:
+        srtm_file = open(input_file)
+    except IOError:
+        print("Could not open the input file. Make sure it exists and can be read.")
+        sys.exit(2)
+
+    with srtm_file:
         for line in srtm_file:
             line_parsed = line.strip().split(',')
 
